@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.tictactoe;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,12 +10,16 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class GameActivity extends AppCompatActivity {
 
     private static final int BOARD_LENGHT = 3;
 
     private TableLayout tableLayout;
+    private TextView tv_player1;
+    private TextView tv_player2;
+    private TextView tv_turnValue;
     private TextView tv_score1;
     private TextView tv_score2;
 
@@ -23,7 +28,9 @@ public class GameActivity extends AppCompatActivity {
     private int turn = 1;
     private int score1 = 0;
     private int score2 = 0;
-    boolean draw = true;
+    private boolean draw = true;
+    private String player1Name;
+    private String player2Name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +38,16 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         tableLayout = findViewById(R.id.board);
+        tv_player1 = findViewById(R.id.tv_player1Name);
+        tv_player2 = findViewById(R.id.tv_player2Name);
         tv_score1 = findViewById(R.id.tv_score1);
         tv_score2 = findViewById(R.id.tv_score2);
+
+        Intent intent = getIntent();
+        player1Name = intent.getStringExtra("player1");
+        player2Name = intent.getStringExtra("player2");
+        tv_player1.setText(player1Name);
+        tv_player2.setText(player2Name);
 
         for (int i = 0; i < tableLayout.getChildCount(); i++) {
             TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
@@ -48,9 +63,24 @@ public class GameActivity extends AppCompatActivity {
                         // TODO Try this!
                         // Toast.makeText(GameActivity.this, "Position: " + finalI + ", " + finalJ, Toast.LENGTH_SHORT).show();
 
-                        button.setText(turn == 1 ? "X" : "O");
-                        checkRoundEnded(finalI, finalJ);
-                        turn = turn == 1 ? 2 : 1;
+                        if(boardState[finalI][finalJ] == 0) {
+                            button.setText(turn == 1 ? "X" : "O");
+                            checkRoundEnded(finalI, finalJ);
+                            turn = turn == 1 ? 2 : 1;
+                            String nextPlayer = turn == 1 ? player1Name : player2Name;
+                            Toast.makeText(GameActivity.this, "It's " + nextPlayer + " turn to play.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
+                            builder.setTitle("Invalid play")
+                                    .setMessage("Can't play in that box, a player has already placed his mark there.")
+                                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+                            builder.create().show();
+                        }
                     }
                 });
             }
@@ -110,7 +140,7 @@ public class GameActivity extends AppCompatActivity {
         }
 
         if(!draw) {
-            msg = "Player " + winner + " won!";
+            msg = winner == 1 ? player1Name + " won!" : player2Name + " won!";
         } else {
             msg = "Draw!";
         }
@@ -133,7 +163,8 @@ public class GameActivity extends AppCompatActivity {
 
     public void createDialog(String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(msg)
+        builder.setTitle("Round over")
+                .setMessage(msg)
                 .setNeutralButton("Next round", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -148,7 +179,8 @@ public class GameActivity extends AppCompatActivity {
 
     public void gameEnded() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Game finished with player " + winner + " as winner")
+        builder.setTitle("Game finished")
+                .setMessage(winner == 1 ? player1Name + " won the game!" : player2Name + " won!")
                 .setPositiveButton("Restart Game", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

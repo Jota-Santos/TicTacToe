@@ -26,4 +26,5 @@
         android:fontFamily="sans-serif"
         android:hint="Player 2"
         />
+
 </LinearLayout>
