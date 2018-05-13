@@ -19,16 +19,16 @@ public class GameActivity extends AppCompatActivity {
     private TableLayout tableLayout;
     private TextView tv_player1;
     private TextView tv_player2;
-    private TextView tv_turnValue;
     private TextView tv_score1;
     private TextView tv_score2;
+    private Button btn_reset;
 
     private int[][] boardState = new int[3][3];
     private int winner = 0;
     private int turn = 1;
     private int score1 = 0;
     private int score2 = 0;
-    private boolean draw = true;
+    private boolean draw = false;
     private String player1Name;
     private String player2Name;
 
@@ -42,12 +42,20 @@ public class GameActivity extends AppCompatActivity {
         tv_player2 = findViewById(R.id.tv_player2Name);
         tv_score1 = findViewById(R.id.tv_score1);
         tv_score2 = findViewById(R.id.tv_score2);
+        btn_reset = findViewById(R.id.btn_reset);
 
         Intent intent = getIntent();
         player1Name = intent.getStringExtra("player1");
         player2Name = intent.getStringExtra("player2");
         tv_player1.setText(player1Name);
         tv_player2.setText(player2Name);
+
+        btn_reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetBoard();
+            }
+        });
 
         for (int i = 0; i < tableLayout.getChildCount(); i++) {
             TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
@@ -94,6 +102,7 @@ public class GameActivity extends AppCompatActivity {
             if(boardState[row][0] == turn && boardState[row][1] == turn && boardState[row][2] == turn) {
                 winner = turn;
                 endRound();
+                return;
             }
         }
 
@@ -101,6 +110,7 @@ public class GameActivity extends AppCompatActivity {
             if(boardState[0][column] == turn && boardState[1][column] == turn && boardState[2][column] == turn) {
                 winner = turn;
                 endRound();
+                return;
             }
         }
 
@@ -108,16 +118,19 @@ public class GameActivity extends AppCompatActivity {
                 boardState[2][0] == turn && boardState[1][1] == turn && boardState[0][2] == turn) {
             winner = turn;
             endRound();
+            return;
         }
 
+        int tileCounter = 0;
         for (int row = 0; row < BOARD_LENGHT; row++) {
             for (int column = 0; column < BOARD_LENGHT; column++) {
-                if(boardState[row][column] == 0) {
-                    draw = false;
-                    break;
+                if(boardState[row][column] != 0) {
+                    tileCounter++;
                 }
             }
         }
+
+        if(tileCounter == BOARD_LENGHT*BOARD_LENGHT) draw = true;
 
         if(draw) endRound();
     }
@@ -151,6 +164,8 @@ public class GameActivity extends AppCompatActivity {
 
     public void resetBoard() {
         boardState = new int[3][3];
+        draw = false;
+        winner = 0;
         for (int i = 0; i < tableLayout.getChildCount(); i++) {
             TableRow tableRow = (TableRow) tableLayout.getChildAt(i);
 
