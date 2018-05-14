@@ -21,6 +21,7 @@ public class GameActivity extends AppCompatActivity {
     private TextView tv_player2;
     private TextView tv_score1;
     private TextView tv_score2;
+    private TextView tv_turn;
     private Button btn_reset;
 
     private int[][] boardState = new int[3][3];
@@ -42,6 +43,7 @@ public class GameActivity extends AppCompatActivity {
         tv_player2 = findViewById(R.id.tv_player2Name);
         tv_score1 = findViewById(R.id.tv_score1);
         tv_score2 = findViewById(R.id.tv_score2);
+        tv_turn = findViewById(R.id.tv_turn);
         btn_reset = findViewById(R.id.btn_reset);
 
         Intent intent = getIntent();
@@ -49,6 +51,7 @@ public class GameActivity extends AppCompatActivity {
         player2Name = intent.getStringExtra("player2");
         tv_player1.setText(player1Name);
         tv_player2.setText(player2Name);
+        tv_turn.setText(turn == 1 ? player1Name : player2Name);
 
         btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,26 +71,13 @@ public class GameActivity extends AppCompatActivity {
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // TODO Try this!
-                        // Toast.makeText(GameActivity.this, "Position: " + finalI + ", " + finalJ, Toast.LENGTH_SHORT).show();
-
                         if(boardState[finalI][finalJ] == 0) {
                             button.setText(turn == 1 ? "X" : "O");
                             checkRoundEnded(finalI, finalJ);
                             turn = turn == 1 ? 2 : 1;
-                            String nextPlayer = turn == 1 ? player1Name : player2Name;
-                            Toast.makeText(GameActivity.this, "It's " + nextPlayer + " turn to play.", Toast.LENGTH_SHORT).show();
+                            tv_turn.setText(turn == 1 ? player1Name : player2Name);
                         } else {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
-                            builder.setTitle("Invalid play")
-                                    .setMessage("Can't play in that box, a player has already placed his mark there.")
-                                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    });
-                            builder.create().show();
+                            createDialog("Invalid play", "Can't play in that box, a player has already placed his mark there.");
                         }
                     }
                 });
@@ -158,7 +148,7 @@ public class GameActivity extends AppCompatActivity {
             msg = "Draw!";
         }
 
-        createDialog(msg);
+        createDialog("Round Over", msg);
 
     }
 
@@ -185,9 +175,9 @@ public class GameActivity extends AppCompatActivity {
         tv_score2.setText("0");
     }
 
-    public void createDialog(String msg) {
+    public void createDialog(String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Round over")
+        builder.setTitle(title)
                 .setMessage(msg)
                 .setNeutralButton("Next round", new DialogInterface.OnClickListener() {
                     @Override
