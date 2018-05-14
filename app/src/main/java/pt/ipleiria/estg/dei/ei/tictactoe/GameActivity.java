@@ -53,7 +53,7 @@ public class GameActivity extends AppCompatActivity {
         btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetBoard();
+                resetGame();
             }
         });
 
@@ -176,6 +176,15 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    public void resetGame() {
+        resetBoard();
+        score1 = 0;
+        score2 = 0;
+        turn = 1;
+        tv_score1.setText("0");
+        tv_score2.setText("0");
+    }
+
     public void createDialog(String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Round over")
@@ -199,8 +208,7 @@ public class GameActivity extends AppCompatActivity {
                 .setPositiveButton("Restart Game", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                        startActivity(getIntent());
+                        resetGame();
                     }
                 })
                 .setNegativeButton("Back to Menu", new DialogInterface.OnClickListener() {
